@@ -1,44 +1,41 @@
+import math
+import time
 from pytrends.request import TrendReq
-import pandas as pd
 
 
-# pd.set_option('display.max_rows', None)
-# pd.set_option('display.max_columns', None)
-# pd.set_option('display.width', None)
-# pd.set_option('display.max_colwidth', -1)
-
-
-def generate_data(index_, iterations_, kw_list_, no_dups_):
-
+def generate_data(index_, iterations_, kw_list_, no_dups_, pytrend_):
+    # pytrend = TrendReq()
     if index_ >= iterations_:
         return
+
     print(index_)
+    print(kw_list_)
     index_ += 1
 
-    pytrend.build_payload(kw_list=kw_list_)
-    related = pytrend.related_queries()
+    new_lists = []
+    for x in range(math.ceil(len(kw_list_) / 5)):
+        pytrend_.build_payload(kw_list=kw_list_[x:x + 5])
+        related = pytrend_.related_queries()
+        new_lists.append(related)
+
     new_list = []
-    for entry in kw_list_:
-        for row in related.get(entry).get('top').get('query'):
-            no_dups_.add(row)
-            new_list.append(row)
-    print(new_list)
-    generate_data(index_, iterations_, new_list, no_dups_)
+    for inner_list in new_lists:
+        for entry in inner_list:
+            for row in inner_list.get(entry).get('top').get('query'):
+                if row not in no_dups_:
+                    no_dups_.add(row)
+                    new_list.append(row)
+    generate_data(index_, iterations_, new_list, no_dups_, pytrend_)
 
-pytrend = TrendReq()
-
-# Create payload and capture API tokens. Only needed for interest_over_time(), interest_by_region() & related_queries()
 
 kw_list = ['COVID19', 'corona']
-
 no_dups = set()
-
-# print(no_dups)
-
 index = 0
 iterations = 2
+pytrend = TrendReq(hl='en-US', tz=360, timeout=(10, 25), proxies=['https://192.168.0.106:80'], retries=5,
+                   backoff_factor=1)
 
-generate_data(index, iterations, kw_list, no_dups)
+generate_data(index, iterations, kw_list, no_dups, pytrend)
 
 print('######')
 print(len(no_dups))
