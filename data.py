@@ -4,7 +4,6 @@ from pytrends.request import TrendReq
 
 
 def generate_data(index_, iterations_, kw_list_, no_dups_, pytrend_):
-    # pytrend = TrendReq()
     if index_ >= iterations_:
         return
 
@@ -21,19 +20,23 @@ def generate_data(index_, iterations_, kw_list_, no_dups_, pytrend_):
     new_list = []
     for inner_list in new_lists:
         for entry in inner_list:
-            for row in inner_list.get(entry).get('top').get('query'):
-                if row not in no_dups_:
-                    no_dups_.add(row)
-                    new_list.append(row)
+            get_entry = inner_list.get(entry)
+            get_top = get_entry.get('top')
+            if get_top is not None:
+                get_query = get_top.get('query')
+                for row in get_query:
+                    if row not in no_dups_:
+                        no_dups_.add(row)
+                        new_list.append(row)
     generate_data(index_, iterations_, new_list, no_dups_, pytrend_)
 
 
-kw_list = ['COVID19', 'corona']
+kw_list = ['COVID19', 'corona', 'cough', 'fever', 'coronavirus symptoms']
 no_dups = set()
 index = 0
-iterations = 2
+iterations = 4
 pytrend = TrendReq(hl='en-US', tz=360, timeout=(10, 25), proxies=['https://192.168.0.106:80'], retries=5,
-                   backoff_factor=1)
+                   backoff_factor=.1)
 
 generate_data(index, iterations, kw_list, no_dups, pytrend)
 
