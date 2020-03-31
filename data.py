@@ -5,6 +5,7 @@ import random
 
 import pytrends
 import requests
+from fake_useragent import UserAgent
 
 from pytrends.request import TrendReq
 from datetime import timedelta, date
@@ -83,6 +84,7 @@ def generate_state_level_data(kw_list_, start_date, end_date):
     previous_date = ''
     df = pd.DataFrame()
     tor = launch_tor_with_config(tor_cmd=tor_path, init_msg_handler=print_lines, config={'ControlPort': '9051'})
+    headers = {'User-Agent': UserAgent().random}
     proxies = {
         'http': 'socks5://127.0.0.1:9050',
         'https': 'socks5://127.0.0.1:9050'
@@ -90,7 +92,7 @@ def generate_state_level_data(kw_list_, start_date, end_date):
     c = Controller.from_port(port=9051)
     c.authenticate('tor')
     c.signal(Signal.NEWNYM)
-    print(requests.get('http://icanhazip.com', proxies=proxies).content)
+    print(requests.get('http://icanhazip.com', proxies=proxies, headers=headers).content)
 
     for current_date in daterange(start_date, end_date):
         if previous_date == '':
@@ -116,7 +118,7 @@ def generate_state_level_data(kw_list_, start_date, end_date):
                             c = Controller.from_port(port=9051)
                             c.authenticate('tor')
                             c.signal(Signal.NEWNYM)
-                            print(requests.get('http://icanhazip.com', proxies=proxies).content)
+                            print(requests.get('http://icanhazip.com', proxies=proxies, headers=headers).content)
                             pytrend = TrendReq(hl='en-US', tz=360)
                             pytrend.build_payload(kw_list=new_kw_list, geo='US', timeframe=timeframe_)
                             interest_by_region_df = pytrend.interest_by_region(resolution='Region')
