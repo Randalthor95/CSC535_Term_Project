@@ -168,7 +168,7 @@ path = "C:\\Users\\Randalthor95\\Documents\\cs535\\"
 # generate_search_terms(index, iterations, kw_list, no_dups, pytrend)
 # save_search_terms_to_csv(path + "search_terms.csv", no_dups)
 
-kw_list = read_terms_from_csv(path + "search_terms.csv")
+kw_list = read_terms_from_csv(".\\search_terms.csv")
 start_date = date(2020, 2, 14)
 end_date = date(2020, 2, 15)
 start_time = time.time()
