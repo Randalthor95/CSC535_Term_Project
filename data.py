@@ -80,7 +80,7 @@ def print_lines(line):
 
 # timeframe=2016-12-14 2017-01-25
 def generate_state_level_data(kw_list_, start_date, end_date):
-    pytrend = TrendReq(hl='en-US', tz=360)
+
     previous_date = ''
     df = pd.DataFrame()
     tor = launch_tor_with_config(tor_cmd=tor_path, init_msg_handler=print_lines, config={'ControlPort': '9051'})
@@ -94,6 +94,8 @@ def generate_state_level_data(kw_list_, start_date, end_date):
     c.signal(Signal.NEWNYM)
     print(requests.get('http://icanhazip.com', proxies=proxies, headers=headers).content)
 
+    pytrend = TrendReq(hl='en-US', tz=360, timeout=(10, 25), proxies=['https://127.0.0.1:9050'], retries=5,
+                       backoff_factor=1)
     for current_date in daterange(start_date, end_date):
         if previous_date == '':
             previous_date = current_date
@@ -119,7 +121,9 @@ def generate_state_level_data(kw_list_, start_date, end_date):
                             c.authenticate('tor')
                             c.signal(Signal.NEWNYM)
                             print(requests.get('http://icanhazip.com', proxies=proxies, headers=headers).content)
-                            pytrend = TrendReq(hl='en-US', tz=360)
+                            pytrend = TrendReq(hl='en-US', tz=360, timeout=(10, 25), proxies=['https://127.0.0.1:9050'],
+                                               retries=5,
+                                               backoff_factor=1)
                             pytrend.build_payload(kw_list=new_kw_list, geo='US', timeframe=timeframe_)
                             interest_by_region_df = pytrend.interest_by_region(resolution='Region')
                             interest_list.append(interest_by_region_df)
