@@ -1,6 +1,9 @@
 import csv
 import math
 import time
+import random
+
+import pytrends
 import requests
 
 from pytrends.request import TrendReq
@@ -11,6 +14,7 @@ import socks
 import socket
 from stem import Signal
 from stem.control import Controller
+from stem.process import launch_tor_with_config
 
 pd.set_option('display.max_rows', 500)
 pd.set_option('display.max_columns', 500)
@@ -64,10 +68,30 @@ def read_terms_from_csv(path_):
         return list(reader)[0]
 
 
+tor_path = "C:\\Users\\Randalthor95\\Desktop\\Tor Browser\\Browser\\TorBrowser\\Tor\\tor.exe"
+
+
+def print_lines(line):
+    if ('Bootstrapped' in line):
+        print(line)
+
+
+
 # timeframe=2016-12-14 2017-01-25
 def generate_state_level_data(kw_list_, start_date, end_date):
+    pytrend = TrendReq(hl='en-US', tz=360)
     previous_date = ''
     df = pd.DataFrame()
+    tor = launch_tor_with_config(tor_cmd=tor_path, init_msg_handler=print_lines, config={'ControlPort': '9051'})
+    proxies = {
+        'http': 'socks5://127.0.0.1:9050',
+        'https': 'socks5://127.0.0.1:9050'
+    }
+    c = Controller.from_port(port=9051)
+    c.authenticate('tor')
+    c.signal(Signal.NEWNYM)
+    print(requests.get('http://icanhazip.com', proxies=proxies).content)
+
     for current_date in daterange(start_date, end_date):
         if previous_date == '':
             previous_date = current_date
@@ -75,13 +99,51 @@ def generate_state_level_data(kw_list_, start_date, end_date):
         timeframe_ = previous_date.strftime(date_time_format_string) + ' ' + current_date.strftime(
             date_time_format_string)
         interest_list = []
+        count = 1
         for entry in kw_list_:
-            new_kw_list = [entry]
-            pytrend.build_payload(kw_list=new_kw_list, geo='US', timeframe=timeframe_)
-            interest_by_region_df = pytrend.interest_by_region(resolution='Region')
-            interest_list.append(interest_by_region_df)
+            try:
+                new_kw_list = [entry]
+                pytrend.build_payload(kw_list=new_kw_list, geo='US', timeframe=timeframe_)
+                interest_by_region_df = pytrend.interest_by_region(resolution='Region')
+                interest_list.append(interest_by_region_df)
+            except pytrends.request.exceptions.ResponseError as e:
+                try:
+                    print(count)
+                    print(e)
+                    while True:
+                        try:
+                            time.sleep(random.randint(10, 20))
+                            c = Controller.from_port(port=9051)
+                            c.authenticate('tor')
+                            c.signal(Signal.NEWNYM)
+                            print(requests.get('http://icanhazip.com', proxies=proxies).content)
+                            pytrend = TrendReq(hl='en-US', tz=360)
+                            pytrend.build_payload(kw_list=new_kw_list, geo='US', timeframe=timeframe_)
+                            interest_by_region_df = pytrend.interest_by_region(resolution='Region')
+                            interest_list.append(interest_by_region_df)
+                        except pytrends.request.exceptions.ResponseError as inner_e:
+                            print('Try again...')
+                        except Exception:
+                            raise
+                        else:
+                            break
+                except Exception as e:
+                    print(e)
+                    tor.terminate()
+                    raise
+            except Exception as e:
+                print(count)
+                print(type(e))
+                print(e)
+                tor.terminate()
+                raise
+            count += 1
+
         df[previous_date.strftime(date_time_format_string)] = interest_list
         previous_date = current_date
+
+    tor.terminate()
+
     return df
 
 
@@ -95,33 +157,41 @@ def save_dates_data_to_csv(path_, start_date_, end_date_, dates_data):
 
 path = "C:\\Users\\Randalthor95\\Documents\\cs535\\"
 
-index = 0
-iterations = 7
-# pytrend = TrendReq(hl='en-US', tz=360, timeout=(10, 25), proxies=['https://196.52.2.64'], retries=5,
+# index = 0
+# iterations = 7
+# pytrend = TrendReq(hl='en-US', tz=360, timeout=(10, 25), proxies=['https://127.0.0.1:9050'], retries=5,
 #                    backoff_factor=1)
 # kw_list = ['COVID19', 'corona', 'cough', 'fever', 'coronavirus symptoms']
 # no_dups = set()
 # generate_search_terms(index, iterations, kw_list, no_dups, pytrend)
 # save_search_terms_to_csv(path + "search_terms.csv", no_dups)
 
-# kw_list = read_terms_from_csv(path + "search_terms.csv")
-# start_date = date(2020, 2, 14)
-# end_date = date(2020, 2, 15)
-# start_time = time.time()
-# state_data = generate_state_level_data(kw_list, start_date, end_date)
-# print("--- %s seconds ---" % (time.time() - start_time))
-# save_dates_data_to_csv(path + "dates", start_date, end_date, state_data)
-# print("--- %.2gs seconds ---" % (time.time() - start_time))
+kw_list = read_terms_from_csv(path + "search_terms.csv")
+start_date = date(2020, 2, 14)
+end_date = date(2020, 2, 15)
+start_time = time.time()
+state_data = generate_state_level_data(kw_list, start_date, end_date)
+print("--- %s seconds ---" % (time.time() - start_time))
+save_dates_data_to_csv(path + "dates", start_date, end_date, state_data)
+print("--- %.2gs seconds ---" % (time.time() - start_time))
 
+# tor = launch_tor_with_config(tor_cmd=tor_path, init_msg_handler=print_lines, config={'ControlPort': '9051'})
+# proxies = {
+#     'http': 'socks5://127.0.0.1:9050',
+#     'https': 'socks5://127.0.0.1:9050'
+# }
 
-socks.set_default_proxy(socks.SOCKS5, "127.0.0.1", 9150)
-socket.socket = socks.socksocket
-
-with Controller.from_port(port = 9051) as controller:
-    controller.authenticate(password='tor9521!')
-    print("Success!")
-    controller.signal(Signal.NEWNYM)
-    print("New Tor connection processed")
-
-print(requests.get('http://icanhazip.com').content)
-
+# with Controller.from_port(port=9051) as c:
+#     c.authenticate('tor')
+#     c.signal(Signal.NEWNYM)
+#     old_proxy = requests.get('http://icanhazip.com', proxies=proxies).content.decode("utf-8")
+#     new_proxy = old_proxy
+#     print(new_proxy)
+# with Controller.from_port(port=9051) as c:
+#     time.sleep(10)
+#     c.authenticate('tor')
+#     c.signal(Signal.NEWNYM)
+#
+#     new_proxy = requests.get('http://icanhazip.com', proxies=proxies).content.decode("utf-8")
+#     print(new_proxy)
+#     tor.terminate()
