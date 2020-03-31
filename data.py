@@ -106,6 +106,8 @@ def generate_state_level_data(kw_list_, start_date, end_date):
         count = 1
         for entry in kw_list_:
             try:
+                if count % 25 == 0:
+                    print(count)
                 new_kw_list = [entry]
                 pytrend.build_payload(kw_list=new_kw_list, geo='US', timeframe=timeframe_)
                 interest_by_region_df = pytrend.interest_by_region(resolution='Region')
@@ -127,7 +129,7 @@ def generate_state_level_data(kw_list_, start_date, end_date):
                             pytrend.build_payload(kw_list=new_kw_list, geo='US', timeframe=timeframe_)
                             interest_by_region_df = pytrend.interest_by_region(resolution='Region')
                             interest_list.append(interest_by_region_df)
-                        except pytrends.request.exceptions.ResponseError as inner_e:
+                        except (pytrends.request.exceptions.ResponseError, requests.exceptions.ReadTimeout) as inner_e:
                             print('Try again...')
                         except Exception:
                             raise
