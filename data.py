@@ -118,7 +118,7 @@ def generate_state_level_data(kw_list_, start_date, end_date):
                     print(e)
                     while True:
                         try:
-                            time.sleep(random.randint(10, 20))
+                            time.sleep(random.randint(600, 2100))
                             c = Controller.from_port(port=9051)
                             c.authenticate('tor')
                             c.signal(Signal.NEWNYM)
@@ -167,16 +167,23 @@ path = "C:\\Users\\Randalthor95\\Documents\\cs535\\"
 
 # index = 0
 # iterations = 7
+# date1 = date(2020, 1, 31)
+# date2 = date(2020, 2, 1)
 # pytrend = TrendReq(hl='en-US', tz=360, timeout=(10, 25), proxies=['https://127.0.0.1:9050'], retries=5,
 #                    backoff_factor=1)
-# kw_list = ['COVID19', 'corona', 'cough', 'fever', 'coronavirus symptoms']
+# kw_list = ['COVID19']
+# timeframe_ = date1.strftime(date_time_format_string) + ' ' + date2.strftime(
+#             date_time_format_string)
+# pytrend.build_payload(kw_list=kw_list, geo='US', timeframe=timeframe_)
+# interest_by_region_df = pytrend.interest_by_region(resolution='Region')
+
 # no_dups = set()
 # generate_search_terms(index, iterations, kw_list, no_dups, pytrend)
 # save_search_terms_to_csv(path + "search_terms.csv", no_dups)
 
 kw_list = read_terms_from_csv(".\\search_terms.csv")
-start_date = date(2020, 2, 14)
-end_date = date(2020, 2, 15)
+start_date = date(2020, 1, 31)
+end_date = date(2020, 2, 1)
 start_time = time.time()
 state_data = generate_state_level_data(kw_list, start_date, end_date)
 print("--- %s seconds ---" % (time.time() - start_time))
