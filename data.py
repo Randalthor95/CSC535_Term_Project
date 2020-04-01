@@ -77,10 +77,8 @@ def print_lines(line):
         print(line)
 
 
-
 # timeframe=2016-12-14 2017-01-25
 def generate_state_level_data(kw_list_, start_date, end_date):
-
     previous_date = ''
     df = pd.DataFrame()
     tor = launch_tor_with_config(tor_cmd=tor_path, init_msg_handler=print_lines, config={'ControlPort': '9051'})
@@ -118,12 +116,12 @@ def generate_state_level_data(kw_list_, start_date, end_date):
                     print(e)
                     while True:
                         try:
-                            time.sleep(random.randint(600, 2100))
+                            time.sleep(random.randint(60, 600))
                             c = Controller.from_port(port=9051)
                             c.authenticate('tor')
                             c.signal(Signal.NEWNYM)
                             print(requests.get('http://icanhazip.com', proxies=proxies, headers=headers).content)
-                            pytrend = TrendReq(hl='en-US', tz=360, timeout=(10, 25), proxies=['https://127.0.0.1:9050'],
+                            pytrend = TrendReq(hl='en-US', tz=360, timeout=(5, 120), proxies=['https://127.0.0.1:9050'],
                                                retries=5,
                                                backoff_factor=1)
                             pytrend.build_payload(kw_list=new_kw_list, geo='US', timeframe=timeframe_)
@@ -155,6 +153,34 @@ def generate_state_level_data(kw_list_, start_date, end_date):
     return df
 
 
+def generate_state_level_data_proxies(kw_list_, start_date, end_date, proxies_):
+    previous_date = ''
+    df = pd.DataFrame()
+
+    pytrend = TrendReq(hl='en-US', tz=360, timeout=(10, 25), proxies=proxies_, retries=5,
+                       backoff_factor=1)
+    for current_date in daterange(start_date, end_date):
+        if previous_date == '':
+            previous_date = current_date
+            continue
+        timeframe_ = previous_date.strftime(date_time_format_string) + ' ' + current_date.strftime(
+            date_time_format_string)
+        interest_list = []
+        count = 1
+        for entry in kw_list_:
+            if count % 25 == 0:
+                print(count)
+            new_kw_list = [entry]
+            pytrend.build_payload(kw_list=new_kw_list, geo='US', timeframe=timeframe_)
+            interest_by_region_df = pytrend.interest_by_region(resolution='Region')
+            interest_list.append(interest_by_region_df)
+
+        df[previous_date.strftime(date_time_format_string)] = interest_list
+        previous_date = current_date
+
+    return df
+
+
 def save_dates_data_to_csv(path_, start_date_, end_date_, dates_data):
     for current_date in daterange(start_date_, end_date_):
         if current_date == end_date_:
@@ -181,11 +207,12 @@ path = "C:\\Users\\Randalthor95\\Documents\\cs535\\"
 # generate_search_terms(index, iterations, kw_list, no_dups, pytrend)
 # save_search_terms_to_csv(path + "search_terms.csv", no_dups)
 
+proxies = ['127.0.0.1']
 kw_list = read_terms_from_csv(".\\search_terms.csv")
 start_date = date(2020, 1, 31)
 end_date = date(2020, 2, 1)
 start_time = time.time()
-state_data = generate_state_level_data(kw_list, start_date, end_date)
+state_data = generate_state_level_data_proxies(kw_list, start_date, end_date, proxies)
 print("--- %s seconds ---" % (time.time() - start_time))
 save_dates_data_to_csv(path + "dates", start_date, end_date, state_data)
 print("--- %.2gs seconds ---" % (time.time() - start_time))
