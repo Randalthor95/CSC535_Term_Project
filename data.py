@@ -11,8 +11,6 @@ from pytrends.request import TrendReq
 from datetime import timedelta, date
 
 import pandas as pd
-import socks
-import socket
 from stem import Signal
 from stem.control import Controller
 from stem.process import launch_tor_with_config
@@ -104,8 +102,7 @@ def generate_state_level_data(kw_list_, start_date, end_date):
         count = 1
         for entry in kw_list_:
             try:
-                if count % 25 == 0:
-                    print(count)
+                print(count)
                 new_kw_list = [entry]
                 pytrend.build_payload(kw_list=new_kw_list, geo='US', timeframe=timeframe_)
                 interest_by_region_df = pytrend.interest_by_region(resolution='Region')
@@ -159,7 +156,9 @@ def generate_state_level_data_proxies(kw_list_, start_date, end_date, proxies_):
 
     pytrend = TrendReq(hl='en-US', tz=360, timeout=(10, 25), proxies=proxies_, retries=5,
                        backoff_factor=1)
+
     for current_date in daterange(start_date, end_date):
+        print(current_date)
         if previous_date == '':
             previous_date = current_date
             continue
@@ -174,7 +173,7 @@ def generate_state_level_data_proxies(kw_list_, start_date, end_date, proxies_):
             pytrend.build_payload(kw_list=new_kw_list, geo='US', timeframe=timeframe_)
             interest_by_region_df = pytrend.interest_by_region(resolution='Region')
             interest_list.append(interest_by_region_df)
-
+            count += 1
         df[previous_date.strftime(date_time_format_string)] = interest_list
         previous_date = current_date
 
@@ -186,7 +185,7 @@ def save_dates_data_to_csv(path_, start_date_, end_date_, dates_data):
         if current_date == end_date_:
             continue
         current_date_as_string = current_date.strftime(date_time_format_string)
-        dates_data[current_date_as_string].to_csv(path_ + '\\' + current_date_as_string + '.csv')
+        dates_data[current_date_as_string].to_csv(path_ + '//' + current_date_as_string + '.csv')
 
 
 path = "C:\\Users\\Randalthor95\\Documents\\cs535\\"
@@ -207,14 +206,235 @@ path = "C:\\Users\\Randalthor95\\Documents\\cs535\\"
 # generate_search_terms(index, iterations, kw_list, no_dups, pytrend)
 # save_search_terms_to_csv(path + "search_terms.csv", no_dups)
 
-proxies = ['127.0.0.1']
-kw_list = read_terms_from_csv(".\\search_terms.csv")
+# proxies = ['https://albany.cs.colostate.edu:60021',
+#            'https://richmond.cs.colostate.edu:60021',
+#            'https://sacramento.cs.colostate.edu:60021',
+#            'https://saint-paul.cs.colostate.edu:60021',
+#            'https://salem.cs.colostate.edu:60021',
+#            'https://salt-lake-city.cs.colostate.edu:60021',
+#            'https://santa-fe.cs.colostate.edu:60021',
+#            'https://springfield.cs.colostate.edu:60021',
+#            'https://tallahassee.cs.colostate.edu:60021',
+#            'https://earth.cs.colostate.edu:60021']
+
+proxies = [
+    'https://albany.cs.colostate.edu:60021',
+    'https://annapolis.cs.colostate.edu:60021',
+    'https://atlanta.cs.colostate.edu:60021',
+    'https://augusta.cs.colostate.edu:60021',
+    'https://austin.cs.colostate.edu:60021',
+    'https://baton-rouge.cs.colostate.edu:60021',
+    'https://bismarck.cs.colostate.edu:60021',
+    'https://boise.cs.colostate.edu:60021',
+    'https://boston.cs.colostate.edu:60021',
+    'https://carson-city.cs.colostate.edu:60021',
+    'https://charleston.cs.colostate.edu:60021',
+    'https://cheyenne.cs.colostate.edu:60021',
+    'https://columbia.cs.colostate.edu:60021',
+    'https://columbus-oh.cs.colostate.edu:60021',
+    'https://concord.cs.colostate.edu:60021',
+    'https://denver.cs.colostate.edu:60021',
+    'https://des-moines.cs.colostate.edu:60021',
+    'https://dover.cs.colostate.edu:60021',
+    'https://frankfort.cs.colostate.edu:60021',
+    'https://harrisburg.cs.colostate.edu:60021',
+    'https://hartford.cs.colostate.edu:60021',
+    'https://helena.cs.colostate.edu:60021',
+    'https://honolulu.cs.colostate.edu:60021',
+    'https://indianapolis.cs.colostate.edu:60021',
+    'https://jackson.cs.colostate.edu:60021',
+    'https://jefferson-city.cs.colostate.edu:60021',
+    'https://juneau.cs.colostate.edu:60021',
+    'https://lansing.cs.colostate.edu:60021',
+    'https://lincoln.cs.colostate.edu:60021',
+    'https://little-rock.cs.colostate.edu:60021',
+    'https://madison.cs.colostate.edu:60021',
+    'https://montgomery.cs.colostate.edu:60021',
+    'https://montpelier.cs.colostate.edu:60021',
+    'https://nashville.cs.colostate.edu:60021',
+    'https://oklahoma-city.cs.colostate.edu:60021',
+    'https://olympia.cs.colostate.edu:60021',
+    'https://phoenix.cs.colostate.edu:60021',
+    'https://pierre.cs.colostate.edu:60021',
+    'https://providence.cs.colostate.edu:60021',
+    'https://raleigh.cs.colostate.edu:60021',
+    'https://richmond.cs.colostate.edu:60021',
+    'https://sacramento.cs.colostate.edu:60021',
+    'https://saint-paul.cs.colostate.edu:60021',
+    'https://salem.cs.colostate.edu:60021',
+    'https://salt-lake-city.cs.colostate.edu:60021',
+    'https://santa-fe.cs.colostate.edu:60021',
+    'https://springfield.cs.colostate.edu:60021',
+    'https://tallahassee.cs.colostate.edu:60021',
+    'https://topeka.cs.colostate.edu:60021',
+    'https://trenton.cs.colostate.edu:60021',
+    'https://ankara.cs.colostate.edu:60021',
+    'https://baghdad.cs.colostate.edu:60021',
+    'https://bangkok.cs.colostate.edu:60021',
+    'https://beijing.cs.colostate.edu:60021',
+    'https://berlin.cs.colostate.edu:60021',
+    'https://bogota.cs.colostate.edu:60021',
+    'https://cairo.cs.colostate.edu:60021',
+    'https://dhaka.cs.colostate.edu:60021',
+    'https://hanoi.cs.colostate.edu:60021',
+    'https://hong-kong.cs.colostate.edu:60021',
+    'https://jakarta.cs.colostate.edu:60021',
+    'https://kabul.cs.colostate.edu:60021',
+    'https://kinshasa.cs.colostate.edu:60021',
+    'https://lima.cs.colostate.edu:60021',
+    'https://london.cs.colostate.edu:60021',
+    'https://madrid.cs.colostate.edu:60021',
+    'https://mexico-city.cs.colostate.edu:60021',
+    'https://moscow.cs.colostate.edu:60021',
+    'https://pyongyang.cs.colostate.edu:60021',
+    'https://riyadh.cs.colostate.edu:60021',
+    'https://santiago.cs.colostate.edu:60021',
+    'https://seoul.cs.colostate.edu:60021',
+    'https://singapore.cs.colostate.edu:60021',
+    'https://tehran.cs.colostate.edu:60021',
+    'https://tokyo.cs.colostate.edu:60021',
+    'https://anchovy.cs.colostate.edu:60021',
+    'https://barracuda.cs.colostate.edu:60021',
+    'https://blowfish.cs.colostate.edu:60021',
+    'https://bonito.cs.colostate.edu:60021',
+    'https://brill.cs.colostate.edu:60021',
+    'https://bullhead.cs.colostate.edu:60021',
+    'https://char.cs.colostate.edu:60021',
+    'https://cod.cs.colostate.edu:60021',
+    'https://dorado.cs.colostate.edu:60021',
+    'https://eel.cs.colostate.edu:60021',
+    'https://flounder.cs.colostate.edu:60021',
+    'https://grouper.cs.colostate.edu:60021',
+    'https://halibut.cs.colostate.edu:60021',
+    'https://herring.cs.colostate.edu:60021',
+    'https://mackerel.cs.colostate.edu:60021',
+    'https://marlin.cs.colostate.edu:60021',
+    'https://perch.cs.colostate.edu:60021',
+    'https://pollock.cs.colostate.edu:60021',
+    'https://sardine.cs.colostate.edu:60021',
+    'https://shark.cs.colostate.edu:60021',
+    'https://sole.cs.colostate.edu:60021',
+    'https://swordfish.cs.colostate.edu:60021',
+    'https://tarpon.cs.colostate.edu:60021',
+    'https://turbot.cs.colostate.edu:60021',
+    'https://tuna.cs.colostate.edu:60021',
+    'https://wahoo.cs.colostate.edu:60021',
+    'https://a-basin.cs.colostate.edu:60021',
+    'https://ajax.cs.colostate.edu:60021',
+    'https://beaver-creek.cs.colostate.edu:60021',
+    'https://breckenridge.cs.colostate.edu:60021',
+    'https://buttermilk.cs.colostate.edu:60021',
+    'https://cooper.cs.colostate.edu:60021',
+    'https://copper-mtn.cs.colostate.edu:60021',
+    'https://crested-butte.cs.colostate.edu:60021',
+    'https://eldora.cs.colostate.edu:60021',
+    'https://grandby-ranch.cs.colostate.edu:60021',
+    'https://aspen-highlands.cs.colostate.edu:60021',
+    'https://howelsen-hill.cs.colostate.edu:60021',
+    'https://keystone.cs.colostate.edu:60021',
+    'https://loveland.cs.colostate.edu:60021',
+    'https://mary-jane.cs.colostate.edu:60021',
+    'https://monarch.cs.colostate.edu:60021',
+    'https://powderhorn.cs.colostate.edu:60021',
+    'https://purgatory.cs.colostate.edu:60021',
+    'https://silverton.cs.colostate.edu:60021',
+    'https://snowmass.cs.colostate.edu:60021',
+    'https://steamboat.cs.colostate.edu:60021',
+    'https://sunlight.cs.colostate.edu:60021',
+    'https://vail.cs.colostate.edu:60021',
+    'https://winter-park.cs.colostate.edu:60021',
+    'https://wolf-creek.cs.colostate.edu:60021',
+    'https://earth.cs.colostate.edu:60021',
+    'https://jupiter.cs.colostate.edu:60021',
+    'https://mars.cs.colostate.edu:60021',
+    'https://mercury.cs.colostate.edu:60021',
+    'https://neptune.cs.colostate.edu:60021',
+    'https://saturn.cs.colostate.edu:60021',
+    'https://uranus.cs.colostate.edu:60021',
+    'https://venus.cs.colostate.edu:60021',
+    'https://bentley.cs.colostate.edu:60021',
+    'https://bugatti.cs.colostate.edu:60021',
+    'https://ferrari.cs.colostate.edu:60021',
+    'https://jaguar.cs.colostate.edu:60021',
+    'https://lamborghini.cs.colostate.edu:60021',
+    'https://lotus.cs.colostate.edu:60021',
+    'https://maserati.cs.colostate.edu:60021',
+    'https://porsche.cs.colostate.edu:60021',
+    'https://corvette.cs.colostate.edu:60021',
+    'https://mustang.cs.colostate.edu:60021',
+    'https://washington-dc.cs.colostate.edu:60021',
+    'https://acorn.cs.colostate.edu:60021',
+    'https://ginko.cs.colostate.edu:60021',
+    'https://heartnut.cs.colostate.edu:60021',
+    'https://nangai.cs.colostate.edu:60021',
+    'https://pili.cs.colostate.edu:60021',
+    'https://pinion.cs.colostate.edu:60021',
+    'https://pistachio.cs.colostate.edu:60021',
+    'https://walnut.cs.colostate.edu:60021',
+    'https://bananas.cs.colostate.edu:60021',
+    'https://raspberries.cs.colostate.edu:60021',
+    'https://pomegranates.cs.colostate.edu:60021',
+    'https://dates.cs.colostate.edu:60021',
+    'https://eggplant.cs.colostate.edu:60021',
+    'https://endive.cs.colostate.edu:60021',
+    'https://fennel.cs.colostate.edu:60021',
+    'https://garlic.cs.colostate.edu:60021',
+    'https://gourd.cs.colostate.edu:60021',
+    'https://horseradish.cs.colostate.edu:60021',
+    'https://kale.cs.colostate.edu:60021',
+    'https://kelp.cs.colostate.edu:60021',
+    'https://leek.cs.colostate.edu:60021',
+    'https://lettuce.cs.colostate.edu:60021',
+    'https://mushroom.cs.colostate.edu:60021',
+    'https://okra.cs.colostate.edu:60021',
+    'https://onion.cs.colostate.edu:60021',
+    'https://parsley.cs.colostate.edu:60021',
+    'https://parsnip.cs.colostate.edu:60021',
+    'https://pea.cs.colostate.edu:60021',
+    'https://pepper.cs.colostate.edu:60021',
+    'https://potato.cs.colostate.edu:60021',
+    'https://pumpkin.cs.colostate.edu:60021',
+    'https://radish.cs.colostate.edu:60021',
+    'https://rhubarb.cs.colostate.edu:60021',
+    'https://romanesco.cs.colostate.edu:60021',
+    'https://rutabaga.cs.colostate.edu:60021',
+    'https://shallot.cs.colostate.edu:60021',
+    'https://squash.cs.colostate.edu:60021',
+    'https://tomatillo.cs.colostate.edu:60021',
+    'https://tomato.cs.colostate.edu:60021',
+    'https://turnip.cs.colostate.edu:60021',
+    'https://wasabi.cs.colostate.edu:60021',
+    'https://yam.cs.colostate.edu:60021',
+    'https://zucchini.cs.colostate.edu:60021',
+    'https://uncompahgre.cs.colostate.edu:60021',
+    'https://kiwis.cs.colostate.edu:60021',
+    'https://nectarines.cs.colostate.edu:60021',
+    'https://peaches.cs.colostate.edu:60021',
+    'https://coopersmiths.cs.colostate.edu:60021',
+    'https://dc-oakes.cs.colostate.edu:60021',
+    'https://equinox.cs.colostate.edu:60021',
+    'https://funkwerks.cs.colostate.edu:60021',
+    'https://maxline.cs.colostate.edu:60021',
+    'https://new-belgium.cs.colostate.edu:60021',
+    'https://odell.cs.colostate.edu:60021',
+    'https://rally-king.cs.colostate.edu:60021',
+    'https://snowbank.cs.colostate.edu:60021',
+    'https://uno.cs.colostate.edu:60021',
+    'https://cwc1.cs.colostate.edu:60021',
+    'https://aqua.cs.colostate.edu:60021',
+    'https://teal.cs.colostate.edu:60021',
+    'https://acushla.cs.colostate.edu:60021',
+]
+
+
+kw_list = read_terms_from_csv("./search_terms.csv")
+# kw_list = ['COVID19', 'corona', 'cough', 'fever', 'coronavirus symptoms']
 start_date = date(2020, 1, 31)
 end_date = date(2020, 2, 1)
 start_time = time.time()
 state_data = generate_state_level_data_proxies(kw_list, start_date, end_date, proxies)
 print("--- %s seconds ---" % (time.time() - start_time))
-save_dates_data_to_csv(path + "dates", start_date, end_date, state_data)
+save_dates_data_to_csv("dates_small", start_date, end_date, state_data)
 print("--- %.2gs seconds ---" % (time.time() - start_time))
 
 # tor = launch_tor_with_config(tor_cmd=tor_path, init_msg_handler=print_lines, config={'ControlPort': '9051'})

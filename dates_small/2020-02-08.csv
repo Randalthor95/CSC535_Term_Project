@@ -1,0 +1,266 @@
+,2020-02-08
+0,"                      COVID19
+geoName                      
+Alabama                     0
+Alaska                      0
+Arizona                     0
+Arkansas                    0
+California                  0
+Colorado                    0
+Connecticut                 0
+Delaware                    0
+District of Columbia        0
+Florida                     0
+Georgia                     0
+Hawaii                      0
+Idaho                       0
+Illinois                    0
+Indiana                     0
+Iowa                        0
+Kansas                      0
+Kentucky                    0
+Louisiana                   0
+Maine                       0
+Maryland                    0
+Massachusetts               0
+Michigan                    0
+Minnesota                   0
+Mississippi                 0
+Missouri                    0
+Montana                     0
+Nebraska                    0
+Nevada                      0
+New Hampshire               0
+New Jersey                  0
+New Mexico                  0
+New York                    0
+North Carolina              0
+North Dakota                0
+Ohio                        0
+Oklahoma                    0
+Oregon                      0
+Pennsylvania                0
+Rhode Island                0
+South Carolina              0
+South Dakota                0
+Tennessee                   0
+Texas                       0
+Utah                        0
+Vermont                     0
+Virginia                    0
+Washington                  0
+West Virginia               0
+Wisconsin                   0
+Wyoming                     0"
+1,"                      corona
+geoName                     
+Alabama                   42
+Alaska                    60
+Arizona                   46
+Arkansas                  40
+California               100
+Colorado                  41
+Connecticut               51
+Delaware                  23
+District of Columbia      26
+Florida                   47
+Georgia                   32
+Hawaii                    77
+Idaho                     39
+Illinois                  41
+Indiana                   22
+Iowa                      35
+Kansas                    24
+Kentucky                  33
+Louisiana                 18
+Maine                     41
+Maryland                  38
+Massachusetts             72
+Michigan                  41
+Minnesota                 50
+Mississippi               18
+Missouri                  39
+Montana                   19
+Nebraska                  41
+Nevada                    60
+New Hampshire             53
+New Jersey                65
+New Mexico                53
+New York                  49
+North Carolina            43
+North Dakota              56
+Ohio                      28
+Oklahoma                  32
+Oregon                    55
+Pennsylvania              42
+Rhode Island              58
+South Carolina            22
+South Dakota              25
+Tennessee                 21
+Texas                     47
+Utah                      66
+Vermont                   45
+Virginia                  35
+Washington                49
+West Virginia             39
+Wisconsin                 43
+Wyoming                   23"
+2,"                      cough
+geoName                    
+Alabama                  52
+Alaska                   22
+Arizona                  45
+Arkansas                 47
+California               44
+Colorado                 52
+Connecticut              57
+Delaware                 64
+District of Columbia     59
+Florida                  39
+Georgia                  41
+Hawaii                   38
+Idaho                    32
+Illinois                 39
+Indiana                  53
+Iowa                     47
+Kansas                   64
+Kentucky                 33
+Louisiana                47
+Maine                    80
+Maryland                 44
+Massachusetts            47
+Michigan                 54
+Minnesota                42
+Mississippi              34
+Missouri                 42
+Montana                  56
+Nebraska                 18
+Nevada                   56
+New Hampshire            42
+New Jersey               51
+New Mexico               68
+New York                 35
+North Carolina           65
+North Dakota             53
+Ohio                     44
+Oklahoma                 54
+Oregon                   33
+Pennsylvania             55
+Rhode Island             69
+South Carolina           44
+South Dakota             72
+Tennessee                52
+Texas                    44
+Utah                     30
+Vermont                 100
+Virginia                 46
+Washington               32
+West Virginia            86
+Wisconsin                51
+Wyoming                  25"
+3,"                      fever
+geoName                    
+Alabama                  69
+Alaska                   24
+Arizona                  82
+Arkansas                 77
+California               60
+Colorado                 51
+Connecticut              79
+Delaware                 27
+District of Columbia     25
+Florida                  51
+Georgia                  34
+Hawaii                   50
+Idaho                    34
+Illinois                 65
+Indiana                  68
+Iowa                    100
+Kansas                   68
+Kentucky                 67
+Louisiana                33
+Maine                    64
+Maryland                 76
+Massachusetts            72
+Michigan                 55
+Minnesota                56
+Mississippi              48
+Missouri                 61
+Montana                  90
+Nebraska                 32
+Nevada                   39
+New Hampshire            63
+New Jersey               46
+New Mexico               46
+New York                 47
+North Carolina           61
+North Dakota             38
+Ohio                     62
+Oklahoma                 81
+Oregon                   21
+Pennsylvania             68
+Rhode Island             52
+South Carolina           57
+South Dakota             38
+Tennessee                71
+Texas                    60
+Utah                     44
+Vermont                  43
+Virginia                 58
+Washington               45
+West Virginia            73
+Wisconsin                50
+Wyoming                  53"
+4,"                      coronavirus symptoms
+geoName                                   
+Alabama                                 29
+Alaska                                   0
+Arizona                                 44
+Arkansas                                61
+California                              64
+Colorado                                50
+Connecticut                             35
+Delaware                                64
+District of Columbia                    20
+Florida                                 49
+Georgia                                 37
+Hawaii                                  79
+Idaho                                   80
+Illinois                                62
+Indiana                                 42
+Iowa                                    72
+Kansas                                  49
+Kentucky                                45
+Louisiana                               48
+Maine                                    0
+Maryland                                52
+Massachusetts                           48
+Michigan                                42
+Minnesota                               60
+Mississippi                             19
+Missouri                                20
+Montana                                 24
+Nebraska                                60
+Nevada                                  56
+New Hampshire                           57
+New Jersey                              75
+New Mexico                              21
+New York                                41
+North Carolina                          69
+North Dakota                             0
+Ohio                                    34
+Oklahoma                                18
+Oregon                                  75
+Pennsylvania                            44
+Rhode Island                           100
+South Carolina                          13
+South Dakota                             0
+Tennessee                               21
+Texas                                   44
+Utah                                    82
+Vermont                                  0
+Virginia                                46
+Washington                              49
+West Virginia                           58
+Wisconsin                              100
+Wyoming                                 84"
