@@ -247,7 +247,6 @@ proxies = [
     'https://juneau.cs.colostate.edu:60021',
     'https://lansing.cs.colostate.edu:60021',
     'https://lincoln.cs.colostate.edu:60021',
-    'https://little-rock.cs.colostate.edu:60021',
     'https://madison.cs.colostate.edu:60021',
     'https://montgomery.cs.colostate.edu:60021',
     'https://montpelier.cs.colostate.edu:60021',
@@ -360,8 +359,6 @@ proxies = [
     'https://lotus.cs.colostate.edu:60021',
     'https://maserati.cs.colostate.edu:60021',
     'https://porsche.cs.colostate.edu:60021',
-    'https://corvette.cs.colostate.edu:60021',
-    'https://mustang.cs.colostate.edu:60021',
     'https://washington-dc.cs.colostate.edu:60021',
     'https://acorn.cs.colostate.edu:60021',
     'https://ginko.cs.colostate.edu:60021',
@@ -370,7 +367,6 @@ proxies = [
     'https://pili.cs.colostate.edu:60021',
     'https://pinion.cs.colostate.edu:60021',
     'https://pistachio.cs.colostate.edu:60021',
-    'https://walnut.cs.colostate.edu:60021',
     'https://bananas.cs.colostate.edu:60021',
     'https://raspberries.cs.colostate.edu:60021',
     'https://pomegranates.cs.colostate.edu:60021',
@@ -420,22 +416,20 @@ proxies = [
     'https://rally-king.cs.colostate.edu:60021',
     'https://snowbank.cs.colostate.edu:60021',
     'https://uno.cs.colostate.edu:60021',
-    'https://cwc1.cs.colostate.edu:60021',
-    'https://aqua.cs.colostate.edu:60021',
-    'https://teal.cs.colostate.edu:60021',
-    'https://acushla.cs.colostate.edu:60021',
+    'https://acushla.cs.colostate.edu:60021'
 ]
-
 
 kw_list = read_terms_from_csv("./search_terms.csv")
 # kw_list = ['COVID19', 'corona', 'cough', 'fever', 'coronavirus symptoms']
-start_date = date(2020, 1, 31)
-end_date = date(2020, 2, 1)
-start_time = time.time()
-state_data = generate_state_level_data_proxies(kw_list, start_date, end_date, proxies)
-print("--- %s seconds ---" % (time.time() - start_time))
-save_dates_data_to_csv("dates_small", start_date, end_date, state_data)
-print("--- %.2gs seconds ---" % (time.time() - start_time))
+for i in range(31, 1, -1):
+    start_date = date(2020, 3, i-1)
+    end_date = date(2020, 3, i)
+    start_time = time.time()
+    state_data = generate_state_level_data_proxies(kw_list, start_date, end_date, proxies)
+    print("--- %s seconds ---" % (time.time() - start_time))
+    save_dates_data_to_csv("dates", start_date, end_date, state_data)
+    print("--- %.2gs seconds ---" % (time.time() - start_time))
+    time.sleep(random.randrange(3600, 5400))
 
 # tor = launch_tor_with_config(tor_cmd=tor_path, init_msg_handler=print_lines, config={'ControlPort': '9051'})
 # proxies = {
