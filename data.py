@@ -218,7 +218,6 @@ path = "C:\\Users\\Randalthor95\\Documents\\cs535\\"
 #            'https://earth.cs.colostate.edu:60021']
 
 proxies = [
-    'https://albany.cs.colostate.edu:60021',
     'https://annapolis.cs.colostate.edu:60021',
     'https://atlanta.cs.colostate.edu:60021',
     'https://augusta.cs.colostate.edu:60021',
@@ -229,7 +228,6 @@ proxies = [
     'https://boston.cs.colostate.edu:60021',
     'https://carson-city.cs.colostate.edu:60021',
     'https://charleston.cs.colostate.edu:60021',
-    'https://cheyenne.cs.colostate.edu:60021',
     'https://columbia.cs.colostate.edu:60021',
     'https://columbus-oh.cs.colostate.edu:60021',
     'https://concord.cs.colostate.edu:60021',
@@ -421,7 +419,7 @@ proxies = [
 
 kw_list = read_terms_from_csv("./search_terms.csv")
 # kw_list = ['COVID19', 'corona', 'cough', 'fever', 'coronavirus symptoms']
-for i in range(31, 1, -1):
+for i in range(28, 1, -1):
     start_date = date(2020, 3, i-1)
     end_date = date(2020, 3, i)
     start_time = time.time()
