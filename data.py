@@ -419,7 +419,7 @@ proxies = [
 
 kw_list = read_terms_from_csv("./search_terms.csv")
 # kw_list = ['COVID19', 'corona', 'cough', 'fever', 'coronavirus symptoms']
-for i in range(28, 1, -1):
+for i in range(20, 1, -1):
     start_date = date(2020, 3, i-1)
     end_date = date(2020, 3, i)
     start_time = time.time()
