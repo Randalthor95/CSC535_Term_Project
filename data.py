@@ -419,9 +419,9 @@ proxies = [
 
 kw_list = read_terms_from_csv("./search_terms.csv")
 # kw_list = ['COVID19', 'corona', 'cough', 'fever', 'coronavirus symptoms']
-for i in range(5, 1, -1):
-    start_date = date(2020, 3, i-1)
-    end_date = date(2020, 3, i)
+for i in range(9, 1, -1):
+    start_date = date(2020, 4, i-1)
+    end_date = date(2020, 4, i)
     start_time = time.time()
     state_data = generate_state_level_data_proxies(kw_list, start_date, end_date, proxies)
     print("--- %s seconds ---" % (time.time() - start_time))
