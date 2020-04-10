@@ -412,14 +412,13 @@ proxies = [
     'https://new-belgium.cs.colostate.edu:60021',
     'https://odell.cs.colostate.edu:60021',
     'https://rally-king.cs.colostate.edu:60021',
-    'https://snowbank.cs.colostate.edu:60021',
     'https://uno.cs.colostate.edu:60021',
     'https://acushla.cs.colostate.edu:60021'
 ]
 
 kw_list = read_terms_from_csv("./search_terms.csv")
 # kw_list = ['COVID19', 'corona', 'cough', 'fever', 'coronavirus symptoms']
-for i in range(9, 1, -1):
+for i in range(8, 1, -1):
     start_date = date(2020, 4, i-1)
     end_date = date(2020, 4, i)
     start_time = time.time()
