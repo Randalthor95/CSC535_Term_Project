@@ -17,6 +17,8 @@ def clean_format_1_data(path_, output_path_):
     state_and_abbreviations_path = './states_and_abbreviations.txt'
     states = get_state_info(state_and_abbreviations_path)
     for filename in os.listdir(path_):
+        day, month, year = filename.split('.')[0].split('-')
+        new_filename = "{}-{}-{}.csv".format(year, day, month)
         for state in states:
             confirmed = 0
             deaths = 0
@@ -32,7 +34,7 @@ def clean_format_1_data(path_, output_path_):
                             recovered += int(values[5])
 
 
-            f = open(cleaned_path + filename, "a")
+            f = open(cleaned_path + new_filename, "a")
             f.write(str(confirmed) + ',' + str(deaths) + ',' + str(recovered) + '\n')
             f.close()
             if just_one_loop:
@@ -44,6 +46,8 @@ def clean_format_2_data(path_, output_path_):
     state_and_abbreviations_path = './states_and_abbreviations.txt'
     states = get_state_info(state_and_abbreviations_path)
     for filename in os.listdir(path_):
+        day, month, year = filename.split('.')[0].split('-')
+        new_filename = "{}-{}-{}.csv".format(year, day, month)
         for state in states:
             confirmed = 0
             deaths = 0
@@ -58,7 +62,7 @@ def clean_format_2_data(path_, output_path_):
                         if values[9].strip() != '':
                             recovered += int(values[9])
 
-            f = open(cleaned_path + filename, "a")
+            f = open(cleaned_path + new_filename, "a")
             f.write(str(confirmed) + ',' + str(deaths) + ',' + str(recovered) + '\n')
             f.close()
             if just_one_loop:
@@ -67,5 +71,6 @@ def clean_format_2_data(path_, output_path_):
 
 format_1_path = './hopkins_data/format_1/'
 format_2_path = './hopkins_data/format_2/'
-cleaned_path = './hopkins_data/cleaned/'
+cleaned_path = './raw/y/'
+clean_format_1_data(format_1_path, cleaned_path)
 clean_format_2_data(format_2_path, cleaned_path)
