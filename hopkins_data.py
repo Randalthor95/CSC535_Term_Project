@@ -71,6 +71,7 @@ def clean_format_2_data(path_, output_path_):
 
 format_1_path = './hopkins_data/format_1/'
 format_2_path = './hopkins_data/format_2/'
+# cleaned_path = './hopkins_data/cleaned/'
 cleaned_path = './raw/y/'
 clean_format_1_data(format_1_path, cleaned_path)
 clean_format_2_data(format_2_path, cleaned_path)
