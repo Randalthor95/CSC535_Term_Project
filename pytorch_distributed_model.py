@@ -218,6 +218,12 @@ def init_process(rank, world_size, backend='gloo'):
         train_sampler.set_epoch(epoch)
         train(train_loader, model, criterion, optimizer, epoch)
 
+'''
+    pip install torch
+    pip install torch_geometric
+    pip install torch-sparse
+'''
+
 
 if __name__ == "__main__":
     rank = int(sys.args[1])
