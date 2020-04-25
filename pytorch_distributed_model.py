@@ -1,5 +1,6 @@
 import os.path as osp
 import os
+import sys
 from datetime import datetime, timedelta
 from torch_geometric.data import Dataset
 from torch_geometric.data import DataLoader
@@ -8,6 +9,7 @@ from torch_geometric.nn import TopKPooling, SAGEConv, GCNConv
 from torch_geometric.nn import global_mean_pool as gap, global_max_pool as gmp
 import torch.nn.functional as F
 import torch.distributed as dist
+from torch.multiprocessing import Process
 
 
 class COVIDSearchTerms(Dataset):
@@ -145,10 +147,8 @@ class Net(torch.nn.Module):
 Example from pytorch distributed
 '''
 def train(train_loader, model, criterion, optimizer, epoch):
-
     losses = AverageMeter()
     device = torch.device('cpu')
-
     # switch to train mode
     model.train()
     end = time.time()
@@ -168,28 +168,35 @@ def train(train_loader, model, criterion, optimizer, epoch):
         # Call step of optimizer to update model params
         optimizer.step()
 
-def setup(rank, world_size):
-    os.environ['MASTER_ADDR'] = 'localhost'
-    os.environ['MASTER_PORT'] = '12355'
-
-    # initialize the process group
-    dist.init_process_group("gloo", rank=rank, world_size=world_size)
-
+def init_process(rank, world_size, backend='gloo'):
+    """ Initialize the distributed environment. """
+    os.environ['MASTER_ADDR'] = '127.0.0.1'
+    os.environ['MASTER_PORT'] = '29500'
+    dist.init_process_group(backend, world_size=world_size, rank=rank)
     # Explicitly setting seed to make sure that models created in two processes
     # start from same random weights and biases.
     torch.manual_seed(42)
 
-def cleanup():
-    dist.destroy_process_group()
+    dataset = COVIDSearchTerms('.')
+    train_data = dataset[:50]
+    valid_data = dataset[50:]
+
+    model = Net()
+    model = torch.nn.parallel.DistributedDataParallel(model)
+
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.005)
+
+    criterion = torch.nn.L1Loss()
+
+    train_sampler = torch.utils.data.distributed.DistributedSampler(trainset)
+    train_loader = DataLoader(train_data, batch_size=1)
+
+    for epoch in range(10):
+        train_sampler.set_epoch(epoch)
+        train(train_loader, model, criterion, optimizer, epoch)
 
 
-dataset = COVIDSearchTerms('.')
-train_data = dataset[:50]
-valid_data = dataset[50:]
-device = torch.device('cpu')
-model = Net().to(device)
-optimizer = torch.optim.Adam(model.parameters(), lr=0.005)
-crit = torch.nn.L1Loss()
-
-train_sampler = torch.utils.data.distributed.DistributedSampler(trainset)
-train_loader = DataLoader(train_data, batch_size=1)
+if __name__ == "__main__":
+    rank = int(sys.args[1])
+    world_size = int(sys.args[2])
+    init_process(rank, world_size)
