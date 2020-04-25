@@ -1,13 +1,19 @@
 import os.path as osp
 import os
 import sys
+import torch
+import numpy as np
 from datetime import datetime, timedelta
+
+import torch_geometric
+from torch_geometric.data import Data
 from torch_geometric.data import Dataset
 from torch_geometric.data import DataLoader
-from torch.nn import LSTM
 from torch_geometric.nn import TopKPooling, SAGEConv, GCNConv
 from torch_geometric.nn import global_mean_pool as gap, global_max_pool as gmp
+
 import torch.nn.functional as F
+from torch.nn import LSTM
 import torch.distributed as dist
 from torch.multiprocessing import Process
 
@@ -169,26 +175,26 @@ class AverageMeter(object):
         self.avg = self.sum / self.count
 
 def train(train_loader, model, criterion, optimizer, epoch):
-    losses = AverageMeter()
+    # losses = AverageMeter()
     device = torch.device('cpu')
     # switch to train mode
     model.train()
-    end = time.time()
     for data in train_loader:
         # Create non_blocking tensors for distributed training
-        input = data.cuda(device=device, non_blocking=True)
-        target = data.y.cuda(device=device, non_blocking=True)
-        # input = input.to(device)
-        # target = target.to(device)
+        # input = data.cuda(device=device, non_blocking=True)
+        # target = data.y.cuda(device=device, non_blocking=True)
+        input = data.to(device)
+        target = data.y.to(device)
         # compute output
         output = model(input)
         loss = criterion(output, target)
-        losses.update(loss.item(), input.size(0))
+        # losses.update(loss.item(), data.batch)
+        print(loss)
         # compute gradients in a backward pass
         optimizer.zero_grad()
         loss.backward()
         # Call step of optimizer to update model params
-        optimizer.step()
+        optimizer.step()        
 
 def init_process(rank, world_size, backend='gloo'):
     """ Initialize the distributed environment. """
@@ -212,12 +218,15 @@ def init_process(rank, world_size, backend='gloo'):
 
     criterion = torch.nn.L1Loss()
 
-    train_sampler = torch.utils.data.distributed.DistributedSampler(trainset)
+    train_sampler = torch.utils.data.distributed.DistributedSampler(dataset)
     train_loader = DataLoader(train_data, batch_size=1)
 
     for epoch in range(10):
         train_sampler.set_epoch(epoch)
         train(train_loader, model, criterion, optimizer, epoch)
+
+    if rank == 0:
+        torch.save(model, 'trained_model.tmod')
 
 '''
     pip install torch
@@ -227,6 +236,7 @@ def init_process(rank, world_size, backend='gloo'):
 
 
 if __name__ == "__main__":
-    rank = int(sys.args[1])
-    world_size = int(sys.args[2])
+    rank = int(sys.argv[1])
+    world_size = int(sys.argv[2])
+    print('rank: {}, world_size: {}'.format(rank, world_size))
     init_process(rank, world_size)
