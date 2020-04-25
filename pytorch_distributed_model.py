@@ -91,7 +91,8 @@ class COVIDSearchTerms(Dataset):
     Network structure taken from example:
     https://towardsdatascience.com/hands-on-graph-neural-networks-with-pytorch-pytorch-geometric-359487e221a8
 '''
-feature_dim = data.num_node_features # should be 3243 for the number of queries
+# feature_dim = data.num_node_features # should be 3243 for the number of queries
+feature_dim = 3243
 
 #         self.lin1 = torch.nn.Linear(10, 51)
 #         self.act1 = torch.nn.ReLU()
