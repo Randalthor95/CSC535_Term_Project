@@ -143,9 +143,30 @@ class Net(torch.nn.Module):
         
         return x.t()
 
+
+
 '''
-Example from pytorch distributed
+Example from pytorch distributed on aws
+https://github.com/pytorch/tutorials/blob/master/beginner_source/aws_distributed_training_tutorial.py#L218
 '''
+
+class AverageMeter(object):
+    """Computes and stores the average and current value"""
+    def __init__(self):
+        self.reset()
+
+    def reset(self):
+        self.val = 0
+        self.avg = 0
+        self.sum = 0
+        self.count = 0
+
+    def update(self, val, n=1):
+        self.val = val
+        self.sum += val * n
+        self.count += n
+        self.avg = self.sum / self.count
+
 def train(train_loader, model, criterion, optimizer, epoch):
     losses = AverageMeter()
     device = torch.device('cpu')
@@ -170,16 +191,18 @@ def train(train_loader, model, criterion, optimizer, epoch):
 
 def init_process(rank, world_size, backend='gloo'):
     """ Initialize the distributed environment. """
-    os.environ['MASTER_ADDR'] = '127.0.0.1'
-    os.environ['MASTER_PORT'] = '29500'
+    # os.environ['MASTER_ADDR'] = '127.0.0.1'
+    # os.environ['MASTER_PORT'] = '29500'
+    os.environ['MASTER_ADDR'] = 'olympia.cs.colostate.edu'
+    os.environ['MASTER_PORT'] = '60021'
+
     dist.init_process_group(backend, world_size=world_size, rank=rank)
     # Explicitly setting seed to make sure that models created in two processes
     # start from same random weights and biases.
     torch.manual_seed(42)
 
     dataset = COVIDSearchTerms('.')
-    train_data = dataset[:50]
-    valid_data = dataset[50:]
+    train_data = dataset
 
     model = Net()
     model = torch.nn.parallel.DistributedDataParallel(model)
