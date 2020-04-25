@@ -3,6 +3,12 @@ import os
 from datetime import datetime, timedelta
 from torch_geometric.data import Dataset
 from torch_geometric.data import DataLoader
+from torch.nn import LSTM
+from torch_geometric.nn import TopKPooling, SAGEConv, GCNConv
+from torch_geometric.nn import global_mean_pool as gap, global_max_pool as gmp
+import torch.nn.functional as F
+import torch.distributed as dist
+
 
 class COVIDSearchTerms(Dataset):
     def __init__(self, root, transform=None, pre_transform=None):
@@ -84,10 +90,13 @@ class COVIDSearchTerms(Dataset):
     https://towardsdatascience.com/hands-on-graph-neural-networks-with-pytorch-pytorch-geometric-359487e221a8
 '''
 feature_dim = data.num_node_features # should be 3243 for the number of queries
-from torch.nn import LSTM
-from torch_geometric.nn import TopKPooling, SAGEConv, GCNConv
-from torch_geometric.nn import global_mean_pool as gap, global_max_pool as gmp
-import torch.nn.functional as F
+
+#         self.lin1 = torch.nn.Linear(10, 51)
+#         self.act1 = torch.nn.ReLU()
+#         self.lstm = LSTM(input_size=51, hidden_size=51, num_layers=3
+#         x = self.lin1(x)
+#         x = self.act1(x)
+#         x, _ = self.lstm(x.view(1, 51, 51))
 
 class Net(torch.nn.Module):
     def __init__(self):
@@ -100,13 +109,6 @@ class Net(torch.nn.Module):
         self.conv5 = GCNConv(100, 10)
         # Reveals a [51, 1] tensor where the 2nd dimensions is the number of cases?
         self.conv6 = GCNConv(10, 1)
-        
-#         self.lin1 = torch.nn.Linear(10, 51)
-#         self.act1 = torch.nn.ReLU()
-        
-#         self.lstm = LSTM(input_size=51, hidden_size=51, num_layers=3)
-        
-  
     def forward(self, data):
         x, edge_index, batch = data.x, data.edge_index, data.batch
 
@@ -135,84 +137,50 @@ class Net(torch.nn.Module):
         
         x = self.conv6(x, edge_index)
         
-#         x = self.lin1(x)
-#         x = self.act1(x)
 
-#         x, _ = self.lstm(x.view(1, 51, 51))
         
         return x.t()
-
 
 '''
 Example from pytorch distributed
 '''
 def train(train_loader, model, criterion, optimizer, epoch):
 
-    batch_time = AverageMeter()
-    data_time = AverageMeter()
     losses = AverageMeter()
-    top1 = AverageMeter()
-    top5 = AverageMeter()
+    device = torch.device('cpu')
 
     # switch to train mode
     model.train()
-
     end = time.time()
-    for i, (input, target) in enumerate(train_loader):
-
-        # measure data loading time
-        data_time.update(time.time() - end)
-
+    for data in train_loader:
         # Create non_blocking tensors for distributed training
-        input = input.cuda(non_blocking=True)
-        target = target.cuda(non_blocking=True)
-
+        input = data.cuda(device=device, non_blocking=True)
+        target = data.y.cuda(device=device, non_blocking=True)
+        # input = input.to(device)
+        # target = target.to(device)
         # compute output
         output = model(input)
         loss = criterion(output, target)
-
-        # measure accuracy and record loss
-        prec1, prec5 = accuracy(output, target, topk=(1, 5))
         losses.update(loss.item(), input.size(0))
-        top1.update(prec1[0], input.size(0))
-        top5.update(prec5[0], input.size(0))
-
         # compute gradients in a backward pass
         optimizer.zero_grad()
         loss.backward()
-
         # Call step of optimizer to update model params
         optimizer.step()
 
-        # measure elapsed time
-        batch_time.update(time.time() - end)
-        end = time.time()
+def setup(rank, world_size):
+    os.environ['MASTER_ADDR'] = 'localhost'
+    os.environ['MASTER_PORT'] = '12355'
 
-        if i % 10 == 0:
-            print('Epoch: [{0}][{1}/{2}]\t'
-                  'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
-                  'Data {data_time.val:.3f} ({data_time.avg:.3f})\t'
-                  'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
-                  'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'
-                  'Prec@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
-                   epoch, i, len(train_loader), batch_time=batch_time,
-                   data_time=data_time, loss=losses, top1=top1, top5=top5))
-# def train(data_loader, model, optimizer, epoch):
-#     model.train()
+    # initialize the process group
+    dist.init_process_group("gloo", rank=rank, world_size=world_size)
 
-#     losses = []
-#     for data in data_loader:
-#         data = data.to(device)
-#         optimizer.zero_grad()
-#         output = model(data)
-#         label = data.y.to(device)
-#         loss = crit(output, label)
-#         print(loss)
-#         losses.append(loss)
-#         loss.backward()
-# #         loss_all += data.num_graphs * loss.item()
-#         optimizer.step()
-#     return losses
+    # Explicitly setting seed to make sure that models created in two processes
+    # start from same random weights and biases.
+    torch.manual_seed(42)
+
+def cleanup():
+    dist.destroy_process_group()
 
 
 dataset = COVIDSearchTerms('.')
