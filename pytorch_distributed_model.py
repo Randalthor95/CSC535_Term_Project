@@ -209,7 +209,8 @@ def init_process(rank, world_size, backend='gloo'):
     torch.manual_seed(42)
 
     dataset = COVIDSearchTerms('.')
-    train_data = dataset
+    train_data, valid_data = dataset[:50], dataset[50:]
+
 
     model = Net()
     model = torch.nn.parallel.DistributedDataParallel(model)
@@ -227,6 +228,54 @@ def init_process(rank, world_size, backend='gloo'):
 
     if rank == 0:
         torch.save(model, 'trained_model.tmod')
+
+    # valid_data = dataset[50:]
+    # validation_loader = DataLoader(valid_data, batch_size=1)
+    # state_names = []
+    # a_file = open("./states_and_abbreviations.txt", "r")
+    # for line in a_file:
+    #     stripped_line = line.strip()
+    #     line_list = stripped_line.split()
+    #     state_names.append(line_list)
+    #
+    # def Sort_Tuple(tup):
+    #
+    #     # reverse = None (Sorts in Ascending order)
+    #     # key is set to sort using second element of
+    #     # sublist lambda has been used
+    #     tup.sort(key=lambda x: x[1].item(), reverse=True)
+    #     return tup
+    #
+    # def get_just_state(list1):
+    #     out_list = []
+    #     for entry in list1:
+    #         out_list.append(entry[0])
+    #     return out_list
+    #
+    # from scipy.stats import spearmanr
+    #
+    # device = torch.device('cpu')
+    # for data in validation_loader:
+    #     output = model(data)
+    #     label = data.y.to(device)
+    #     output_with_state = []
+    #     label_with_state = []
+    #     for i, state in enumerate(state_names):
+    #         output_with_state.append((state, output[0][i]))
+    #
+    #     for i, state in enumerate(state_names):
+    #         label_with_state.append((state, label[0][i]))
+    #
+    #     sorted_output = Sort_Tuple(output_with_state)
+    #     sorted_label = Sort_Tuple(label_with_state)
+    #     coef, p = spearmanr(get_just_state(label_with_state), get_just_state(output_with_state))
+    #     print(coef)
+    #     print(p)
+    #     print('OUTPUT:')
+    #     print(sorted_output)
+    #     print('LABEL:')
+    #     print(sorted_label)
+    #     print()
 
 '''
     pip install torch
