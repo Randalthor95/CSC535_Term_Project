@@ -228,7 +228,7 @@ def init_process(rank, world_size, backend='gloo'):
 
     criterion = torch.nn.L1Loss()
 
-    train_sampler = torch.utils.data.distributed.DistributedSampler(dataset)
+    train_sampler = torch.utils.data.distributed.DistributedSampler(train_data)
     train_loader = DataLoader(train_data, batch_size=10)
     valid_loader = DataLoader(valid_data, batch_size=1)
 
@@ -239,7 +239,7 @@ def init_process(rank, world_size, backend='gloo'):
 
     if rank == 0:
         torch.save(model.state_dict, 'trained_model.tmod')
-        validate(model, train_loader)
+        validate(model, valid_loader)
 
 
 if __name__ == "__main__":
