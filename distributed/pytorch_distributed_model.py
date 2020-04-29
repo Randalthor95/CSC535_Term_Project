@@ -180,6 +180,20 @@ def train(train_loader, model, criterion, optimizer, epoch):
         optimizer.step()       
     print("Epoch complete, loss:", loss_meter.avg)
 
+# def validate(train_loader, model):
+#    for data in validation_loader:
+#         output = model(data).detach().numpy().squeeze()
+#         label = data.y.to(device).numpy().squeeze()
+#         top10_act = (-label).argsort()[:10]
+#         top10_pred = (-output).argsort()[:10]
+#         print(np.intersect1d(top10_act, top10_pred).shape)
+#         plt.scatter(np.arange(51), label, c="r", label="actual")
+#         plt.scatter(np.arange(51), output, c="b", label="predicted")
+#         plt.xlabel("States")
+#         plt.ylabel("Number of Cases a Week Later")
+#         plt.legend(loc="lower left")
+#         plt.show()
+
 def init_process(rank, world_size, backend='gloo'):
     """ Initialize the distributed environment. """
     # os.environ['MASTER_ADDR'] = '127.0.0.1'
@@ -219,7 +233,7 @@ def init_process(rank, world_size, backend='gloo'):
         train(train_loader, model, criterion, optimizer, epoch)
 
     if rank == 0:
-        torch.save(model, 'trained_model.tmod')
+        torch.save(model.state_dict, 'trained_model.tmod')
 
 if __name__ == "__main__":
     rank = int(sys.argv[1])
