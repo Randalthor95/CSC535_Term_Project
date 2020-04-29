@@ -6,6 +6,8 @@ import numpy as np
 import torch.distributed as dist
 from torch.multiprocessing import Process
 
+import matplotlib.pyplot as plt
+
 # Model shit
 from torch_geometric.nn import TopKPooling, SAGEConv, GCNConv
 from torch_geometric.nn import global_mean_pool as gap, global_max_pool as gmp
@@ -180,19 +182,22 @@ def train(train_loader, model, criterion, optimizer, epoch):
         optimizer.step()       
     print("Epoch complete, loss:", loss_meter.avg)
 
-# def validate(train_loader, model):
-#    for data in validation_loader:
-#         output = model(data).detach().numpy().squeeze()
-#         label = data.y.to(device).numpy().squeeze()
-#         top10_act = (-label).argsort()[:10]
-#         top10_pred = (-output).argsort()[:10]
-#         print(np.intersect1d(top10_act, top10_pred).shape)
-#         plt.scatter(np.arange(51), label, c="r", label="actual")
-#         plt.scatter(np.arange(51), output, c="b", label="predicted")
-#         plt.xlabel("States")
-#         plt.ylabel("Number of Cases a Week Later")
-#         plt.legend(loc="lower left")
-#         plt.show()
+def validate(validation_loader, model):
+    i = 0
+    for data in validation_loader:
+        output = model(data).detach().numpy().squeeze()
+        label = data.y.to(device).numpy().squeeze()
+        top10_act = (-label).argsort()[:10]
+        top10_pred = (-output).argsort()[:10]
+        print(np.intersect1d(top10_act, top10_pred).shape)
+        plt.scatter(np.arange(51), label, c="r", label="actual")
+        plt.scatter(np.arange(51), output, c="b", label="predicted")
+        plt.xlabel("States")
+        plt.ylabel("Number of Cases a Week Later")
+        plt.legend(loc="lower left")
+        if i % 5 == 0:
+            plt.save('graph_results-{}.png'.format(i))
+        i = i + 1
 
 def init_process(rank, world_size, backend='gloo'):
     """ Initialize the distributed environment. """
@@ -211,7 +216,6 @@ def init_process(rank, world_size, backend='gloo'):
     dataset = COVIDSearchTerms('..')
     train_data, valid_data = dataset[:50], dataset[50:]
 
-
     model = GraphNetV1(
         convs=[],
         lin=[(100, 100), (100, 100), (100, 75), (75, 50), 
@@ -226,11 +230,14 @@ def init_process(rank, world_size, backend='gloo'):
 
     train_sampler = torch.utils.data.distributed.DistributedSampler(dataset)
     train_loader = DataLoader(train_data, batch_size=10)
+    valid_loader = DataLoader(valid_data, batch_size=1)
 
     for epoch in range(50):
         print("Current epoch", epoch)
         train_sampler.set_epoch(epoch)
         train(train_loader, model, criterion, optimizer, epoch)
+
+    validate(model, valid_loader)
 
     if rank == 0:
         torch.save(model.state_dict, 'trained_model.tmod')

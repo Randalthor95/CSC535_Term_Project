@@ -140,7 +140,13 @@ if __name__ == "__main__":
     valid_data = dataset[50:]
     validation_loader = DataLoader(valid_data, batch_size=1)
     device = torch.device('cpu')
-    model = torch.load('trained_model.tmod')
+    model = GraphNetV1(
+        convs=[],
+        lin=[(100, 100), (100, 100), (100, 75), (75, 50), 
+            (50, 50), (50, 25), (25, 10), (10, 5), (5, 1)]
+    )
+    state_dict = torch.load('trained_model.tmod')
+    model.load_state_dict(state_dict)
     model.eval()
 
     for data in validation_loader:
