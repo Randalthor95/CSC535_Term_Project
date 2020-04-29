@@ -230,7 +230,7 @@ def init_process(rank, world_size, backend='gloo'):
 
     train_sampler = torch.utils.data.distributed.DistributedSampler(train_data)
     train_loader = DataLoader(train_data, batch_size=10)
-    valid_loader = DataLoader(valid_data, batch_size=1)
+    valid_loader = torch_geometric.data(valid_data, batch_size=1)
 
     for epoch in range(50):
         print("Current epoch", epoch)
