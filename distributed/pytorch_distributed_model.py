@@ -239,7 +239,7 @@ def init_process(rank, world_size, backend='gloo'):
 
     if rank == 0:
         torch.save(model.state_dict, 'trained_model.tmod')
-        validate(model, valid_loader)
+        validate(model, train_loader)
 
 
 if __name__ == "__main__":
