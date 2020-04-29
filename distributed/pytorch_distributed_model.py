@@ -237,10 +237,10 @@ def init_process(rank, world_size, backend='gloo'):
         train_sampler.set_epoch(epoch)
         train(train_loader, model, criterion, optimizer, epoch)
 
-    validate(model, valid_loader)
-
     if rank == 0:
         torch.save(model.state_dict, 'trained_model.tmod')
+        validate(model, valid_loader)
+
 
 if __name__ == "__main__":
     rank = int(sys.argv[1])
