@@ -198,7 +198,7 @@ def validate(validation_loader, model):
         plt.xlabel("States")
         plt.ylabel("Number of Cases a Week Later")
         plt.legend(loc="lower left")
-        if i % 5 == 0:
+        if i % 2 == 0:
             plt.savefig('graph_results-{}.png'.format(i))
         i = i + 1
 
@@ -235,7 +235,7 @@ def init_process(rank, world_size, backend='gloo'):
     train_loader = DataLoader(train_data, batch_size=10)
     valid_loader = torch_geometric.data.DataLoader(valid_data, batch_size=1)
 
-    for epoch in range(5):
+    for epoch in range(50):
         print("Current epoch", epoch)
         train_sampler.set_epoch(epoch)
         train(train_loader, model, criterion, optimizer, epoch)
