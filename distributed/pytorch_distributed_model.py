@@ -184,6 +184,9 @@ def train(train_loader, model, criterion, optimizer, epoch):
 
 def validate(validation_loader, model):
     i = 0
+    device = torch.device('cpu')
+    model.to(device)
+    model.eval()
     for data in validation_loader:
         output = model(data).detach().numpy().squeeze()
         label = data.y.to(device).numpy().squeeze()
@@ -196,7 +199,7 @@ def validate(validation_loader, model):
         plt.ylabel("Number of Cases a Week Later")
         plt.legend(loc="lower left")
         if i % 5 == 0:
-            plt.save('graph_results-{}.png'.format(i))
+            plt.savefig('graph_results-{}.png'.format(i))
         i = i + 1
 
 def init_process(rank, world_size, backend='gloo'):
@@ -230,16 +233,16 @@ def init_process(rank, world_size, backend='gloo'):
 
     train_sampler = torch.utils.data.distributed.DistributedSampler(train_data)
     train_loader = DataLoader(train_data, batch_size=10)
-    valid_loader = torch_geometric.data(valid_data, batch_size=1)
+    valid_loader = torch_geometric.data.DataLoader(valid_data, batch_size=1)
 
-    for epoch in range(50):
+    for epoch in range(5):
         print("Current epoch", epoch)
         train_sampler.set_epoch(epoch)
         train(train_loader, model, criterion, optimizer, epoch)
 
     if rank == 0:
         torch.save(model.state_dict, 'trained_model.tmod')
-        validate(model, valid_loader)
+        validate(valid_loader, model)
 
 
 if __name__ == "__main__":
