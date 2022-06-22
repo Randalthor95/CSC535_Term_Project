@@ -14,7 +14,7 @@ llvmlite==0.32.0
 matplotlib==3.2.1
 networkx==2.4
 numba==0.49.0
-numpy==1.18.3
+numpy==1.22.0
 pandas==1.0.3
 Pillow==8.1.1
 plyfile==0.7.2
